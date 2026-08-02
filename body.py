@@ -312,10 +312,16 @@ def render(day: date, daily: dict[str, Any], menu: dict[str, int], removed: tupl
     """Terminal view: two independently copyable messages, ready for two groups."""
     ops = build_ops_message(day, daily)
     general = build_general_message(day, daily, menu, removed)
-    return f"""================ OPS GROUP MESSAGE ================
+    return f"""┌─[ THE SYSTEM : OPS STATUS ]──┐
+│      SHADOW MONARCH          │
+└──────────────────────────────┘
 {ops}
 
-============= GENERAL GROUP MESSAGE =============
+────────────────────────────────
+
+┌─[ THE SYSTEM : DAILY INTEL ]─┐
+│      SHADOW MONARCH          │
+└──────────────────────────────┘
 {general}"""
 
 
