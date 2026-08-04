@@ -226,14 +226,17 @@ def daily_metrics(bills: list[dict[str, Any]]) -> dict[str, Any]:
     covers = sum(int(str(bill.get("_covers", 0) or 0)) for bill in bills)
     ta = [bill for bill in bills if takeaway_bill(bill)]
     staff = [bill for bill in bills if staff_bill(bill)]
-    # APC is defined by the operations rule, not by a payment-mode subtotal:
-    # Gross Sales - 5% of Gross Sales, then divided by the total cover count.
-    apc_principal = gross * (Decimal("1") - APC_DEDUCTION)
-    apc = (apc_principal / covers) if covers else Decimal("0")
+    # Operations rule:
+    # 1. Deduct 5% from Gross Sales.
+    # 2. Deduct the Takeaway amount.
+    # 3. Divide the resulting real Dine-in amount by Covers for APC.
+    takeaway_amount = sum((bill_total(bill) for bill in ta), Decimal("0"))
+    real_dine_in_amount = (gross * (Decimal("1") - APC_DEDUCTION)) - takeaway_amount
+    apc = (real_dine_in_amount / covers) if covers else Decimal("0")
     return {
         "bills": len(bills), "covers": covers, "gross": gross, "apc": apc, "collections": collections,
-        "apc_principal": apc_principal,
-        "takeaway": (sum((bill_total(bill) for bill in ta), Decimal("0")), len(ta)),
+        "apc_principal": real_dine_in_amount,
+        "takeaway": (takeaway_amount, len(ta)),
         "staff": (sum((bill_total(bill) for bill in staff), Decimal("0")), len(staff)),
     }
 
